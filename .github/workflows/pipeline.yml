@@ -46,4 +46,31 @@ jobs:
           healthcheck: "https://veras-full-stack-open-pokedex.herokuapp.com/health"
           checkstring: "ok"
           rollbackonhealthcheckfailed: true
-
+      - name: Send success build status notification to Slack
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          fields: workflow,job,commit,repo,ref,author,took
+          custom_payload: |
+            {
+            attachments: [{ 
+              text: `a new version deployed to ${process.env.AS_REPO},${process.env.AS_COMMIT} by ${process.env.AS_AUTHOR}`,      
+              }]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        if: ${{ success() }}        
+      - name: Send failure build status notification to Slack
+        uses: 8398a7/action-slack@v3
+        with:
+         status: custom
+         fields: repo,message,commit,author,action,eventName,ref,workflow,job,took 
+         custom_payload: |
+          {
+          attachments: [{        
+            text: `deployment of a new version to ${process.env.AS_REPO},${process.env.AS_COMMIT} by ${process.env.AS_AUTHOR} failed`,      
+            }]
+          }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        if: ${{ failure() }}
