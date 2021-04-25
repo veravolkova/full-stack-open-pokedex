@@ -49,17 +49,11 @@ jobs:
       - name: Send success build status notification to Slack
         uses: 8398a7/action-slack@v3
         with:
-          status: custom
-          fields: workflow,job,commit,repo,ref,author,took
-          custom_payload: |
-            {
-            attachments: [{ 
-              text: `a new version deployed to ${process.env.AS_REPO},${process.env.AS_COMMIT} by ${process.env.AS_AUTHOR}`,      
-              }]
-            }
+          status: ${{ job.status }}
+          fields: repo,commit,author,action,eventName,ref,job,took 
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        if: ${{ success() }}        
+        if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ', '), '#skip') &&  success()}}       
       - name: Send failure build status notification to Slack
         uses: 8398a7/action-slack@v3
         with:
@@ -73,4 +67,4 @@ jobs:
           }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        if: ${{ failure() }}
+        if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ', '), '#skip') &&  failure()}}    
