@@ -1,9 +1,9 @@
 name: Periodic Healthcheck
 
 on:
-  push:
-    branches:
-      - master
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    - cron:  '30 5,17 * * *'
 
 jobs:
   health_check:
@@ -22,5 +22,6 @@ jobs:
           retry-delay: 5s # Optional, only applicable to max-attempts > 1
           # Retry all errors, including 404
           retry-all: no # Optional, defaults to "no"
+      
      
    
